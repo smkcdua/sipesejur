@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SIPESEJUR — Sistem Pemilihan Sekolah & Jurusan YPIC Banjarnegara</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,400;0,600;0,700;0,800;0,900;1,700&family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root {
+  --primary: #6c63ff;
+  --primary-light: #a29bfe;
+  --primary-dark: #4834d4;
+  --accent: #fd79a8;
+  --accent2: #fdcb6e;
+  --accent3: #00cec9;
+  --accent4: #55efc4;
+  --green: #00b894;
+  --red: #d63031;
+  --bg: #f8f7ff;
+  --card: #ffffff;
+  --text: #2d3436;
+  --muted: #636e72;
+  --border: #e8e5ff;
+  --radius: 20px;
+  --shadow: 0 8px 32px rgba(108,99,255,.12);
+  --shadow-lg: 0 16px 48px rgba(108,99,255,.18);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Nunito',sans-serif;background:var(--bg);min-height:100vh;color:var(--text);
+  background-image:
+    radial-gradient(ellipse at 15% 0%, rgba(108,99,255,.10) 0%, transparent 55%),
+    radial-gradient(ellipse at 85% 100%, rgba(253,121,168,.09) 0%, transparent 55%),
+    radial-gradient(ellipse at 50% 50%, rgba(253,203,110,.06) 0%, transparent 70%);}
+
+/* ── BLOBS ── */
+.blob{position:fixed;border-radius:50%;filter:blur(80px);pointer-events:none;z-index:0;opacity:.35;}
+.blob-1{width:340px;height:340px;background:#a29bfe;top:-80px;left:-80px;}
+.blob-2{width:280px;height:280px;background:#fd79a8;bottom:-60px;right:-60px;}
+.blob-3{width:200px;height:200px;background:#fdcb6e;top:40%;left:50%;transform:translateX(-50%);}
+
+/* ── WRAPPER ── */
+.app{max-width:640px;margin:0 auto;padding:20px 16px 40px;position:relative;z-index:1;}
+
+/* ── HEADER ── */
+.header{text-align:center;margin-bottom:28px;padding:28px 20px 24px;}
+.logo-wrap{display:inline-flex;align-items:center;gap:12px;margin-bottom:16px;
+  background:#fff;border-radius:50px;padding:8px 20px 8px 12px;
+  box-shadow:0 4px 20px rgba(108,99,255,.15);border:1.5px solid var(--border);}
+.logo-icon{width:42px;height:42px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));
+  display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.logo-text{text-align:left;}
+.logo-name{font-family:'Poppins',sans-serif;font-size:14px;font-weight:800;color:var(--primary);letter-spacing:-.01em;}
+.logo-sub{font-size:9.5px;color:var(--muted);font-weight:600;display:block;margin-top:1px;}
+.header-title{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:var(--text);line-height:1.2;margin-bottom:8px;}
+.header-title span{background:linear-gradient(135deg,var(--primary),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.header-desc{font-size:13.5px;color:var(--muted);line-height:1.6;max-width:400px;margin:0 auto;}
+
+/* ── PROGRESS BAR ── */
+.progress-wrap{margin-bottom:24px;}
+.progress-steps{display:flex;gap:0;border-radius:14px;overflow:hidden;border:1.5px solid var(--border);background:#fff;}
+.progress-step{flex:1;padding:9px 6px;text-align:center;font-size:10.5px;font-weight:700;
+  color:var(--muted);background:#fff;border-right:1.5px solid var(--border);transition:all .3s;cursor:default;}
+.progress-step:last-child{border-right:none;}
+.progress-step.done{background:linear-gradient(135deg,var(--accent4),#00b894);color:#fff;}
+.progress-step.active{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;font-weight:800;}
+.progress-step .step-num{display:block;font-size:14px;margin-bottom:1px;}
+.progress-track{height:5px;background:var(--border);border-radius:3px;margin-top:8px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:3px;background:linear-gradient(90deg,var(--primary),var(--accent));transition:width .5s cubic-bezier(.22,1,.36,1);}
+
+/* ── CARD ── */
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);border:1.5px solid var(--border);
+  padding:22px 20px;margin-bottom:18px;transition:transform .2s;}
+.card-title{font-family:'Poppins',sans-serif;font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.card-subtitle{font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.5;}
+.section-label{font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.13em;color:var(--primary);
+  margin-bottom:10px;padding-bottom:7px;border-bottom:2px solid var(--border);display:flex;align-items:center;gap:6px;}
+
+/* ── FORM INPUTS ── */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.form-row.single{grid-template-columns:1fr;}
+.form-group{display:flex;flex-direction:column;gap:5px;}
+.form-label{font-size:11.5px;font-weight:700;color:var(--text);}
+.form-input{padding:11px 14px;border:2px solid var(--border);border-radius:12px;
+  font-family:'Nunito',sans-serif;font-size:13.5px;color:var(--text);background:#fff;
+  transition:border-color .2s,box-shadow .2s;outline:none;}
+.form-input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(108,99,255,.12);}
+.form-input::placeholder{color:#b2bec3;}
+
+/* ── SCORE SLIDERS ── */
+.score-group{margin-bottom:14px;}
+.score-badge-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.score-badge-row.three{grid-template-columns:repeat(3,1fr);}
+.score-item{border-radius:13px;padding:12px 12px 10px;border:2px solid;transition:transform .15s;}
+.score-item:hover{transform:translateY(-2px);}
+.score-item.sains{border-color:#a29bfe;background:#f3f1ff;}
+.score-item.bahasa{border-color:#fd79a8;background:#fff0f6;}
+.score-item.lain{border-color:#fdcb6e;background:#fffbf0;}
+.score-item.ps{border-color:#74b9ff;background:#f0f8ff;}
+.score-item.ld{border-color:#a29bfe;background:#f5f3ff;}
+.score-item.ss{border-color:#55efc4;background:#f0fff8;}
+.score-item label{font-size:10px;font-weight:800;display:block;margin-bottom:6px;}
+.score-item.sains label{color:#6c5ce7;}
+.score-item.bahasa label{color:#e84393;}
+.score-item.lain label{color:#e17055;}
+.score-item.ps label{color:#0984e3;}
+.score-item.ld label{color:#6c5ce7;}
+.score-item.ss label{color:#00b894;}
+.score-range-wrap{display:flex;align-items:center;gap:8px;}
+.score-range-wrap input[type=range]{flex:1;cursor:pointer;accent-color:var(--primary);height:4px;}
+.score-val{font-family:'Poppins',sans-serif;font-size:17px;font-weight:800;color:var(--primary);min-width:30px;text-align:right;}
+
+/* ── CHIP GRID ── */
+.chip-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:4px;}
+.chip-grid.five{grid-template-columns:repeat(3,1fr);}
+@media(max-width:420px){.chip-grid.five{grid-template-columns:repeat(2,1fr);}}
+.chip{border-radius:12px;padding:10px 10px 9px;border:2px solid var(--border);background:#fff;
+  cursor:pointer;transition:all .18s;user-select:none;text-align:center;}
+.chip:hover{border-color:var(--primary);box-shadow:0 4px 14px rgba(108,99,255,.12);}
+.chip.selected{border-color:var(--primary);background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  box-shadow:0 4px 16px rgba(108,99,255,.3);}
+.chip.selected .chip-name,.chip.selected .chip-icon{color:#fff;}
+.chip-icon{font-size:18px;display:block;margin-bottom:4px;}
+.chip-name{font-size:11px;font-weight:700;color:var(--text);display:block;line-height:1.3;}
+.chip.selected .chip-name{color:#fff;}
+
+/* ── PILL BUTTONS ── */
+.pill-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;}
+.pill{padding:8px 16px;border-radius:50px;font-family:'Nunito',sans-serif;font-size:12px;font-weight:700;
+  border:2px solid var(--border);background:#fff;cursor:pointer;transition:all .2s;color:var(--muted);}
+.pill:hover{border-color:var(--primary);color:var(--primary);}
+.pill.active{background:var(--primary);border-color:var(--primary);color:#fff;
+  box-shadow:0 4px 14px rgba(108,99,255,.3);}
+.pill.active-accent{background:var(--accent);border-color:var(--accent);color:#fff;}
+.pill.active-green{background:var(--green);border-color:var(--green);color:#fff;}
+
+/* ── GAYA BELAJAR ── */
+.gaya-row{display:flex;gap:9px;}
+.gaya-btn{flex:1;padding:10px 8px;border-radius:13px;border:2px solid var(--border);background:#fff;
+  cursor:pointer;font-family:'Nunito',sans-serif;font-size:11.5px;font-weight:700;color:var(--muted);
+  transition:all .2s;text-align:center;line-height:1.4;}
+.gaya-btn:hover:not(.active){border-color:var(--primary);color:var(--primary);}
+.gaya-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;border-color:var(--primary);box-shadow:0 4px 14px rgba(108,99,255,.3);}
+.gaya-btn-sub{font-size:9px;font-weight:500;opacity:.8;display:block;margin-top:2px;}
+
+/* ── BUTTONS ── */
+.btn{width:100%;padding:14px;border-radius:14px;font-family:'Nunito',sans-serif;font-size:14.5px;font-weight:800;
+  border:none;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.01em;}
+.btn-primary{background:linear-gradient(135deg,var(--primary),var(--primary-light));color:#fff;
+  box-shadow:0 8px 24px rgba(108,99,255,.35);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(108,99,255,.45);}
+.btn-secondary{background:#fff;color:var(--primary);border:2px solid var(--border);margin-top:10px;}
+.btn-secondary:hover{border-color:var(--primary);}
+.btn-back{background:#fff;color:var(--muted);border:2px solid var(--border);}
+.btn-back:hover{color:var(--text);border-color:var(--text);}
+.btn-row{display:grid;grid-template-columns:1fr 2fr;gap:10px;}
+
+/* ─── PAGES ─── */
+.page{display:none;}
+.page.active{display:block;animation:fadeUp .35s ease;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── RESULT PAGE ── */
+.confetti-banner{border-radius:var(--radius);padding:24px 22px;text-align:center;margin-bottom:18px;position:relative;overflow:hidden;}
+.confetti-banner.sma{background:linear-gradient(135deg,#f9a825,#e65100);}
+.confetti-banner.smk1{background:linear-gradient(135deg,#1565c0,#0d47a1);}
+.confetti-banner.smk2{background:linear-gradient(135deg,#1b5e20,#2e7d32);}
+.cb-emoji{font-size:40px;display:block;margin-bottom:8px;animation:bounce 1s ease infinite;}
+@keyframes bounce{0%,100%{transform:translateY(0);}50%{transform:translateY(-8px);}}
+.cb-congrats{font-family:'Poppins',sans-serif;font-size:11px;font-weight:700;color:rgba(255,255,255,.7);
+  text-transform:uppercase;letter-spacing:.18em;margin-bottom:4px;}
+.cb-name{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:#fff;margin-bottom:6px;}
+.cb-school{font-size:13px;color:rgba(255,255,255,.85);margin-bottom:12px;line-height:1.4;}
+.cb-match{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.18);
+  border-radius:50px;padding:6px 18px;border:1px solid rgba(255,255,255,.3);}
+.cb-pct{font-family:'Poppins',sans-serif;font-size:26px;font-weight:800;color:#fff;}
+.cb-label{font-size:10px;color:rgba(255,255,255,.7);}
+.match-bar-wrap{margin-top:12px;display:flex;align-items:center;gap:10px;}
+.match-bar{flex:1;height:9px;background:rgba(255,255,255,.25);border-radius:5px;overflow:hidden;}
+.match-bar-fill{height:100%;border-radius:5px;background:rgba(255,255,255,.9);width:0%;transition:width 1.4s cubic-bezier(.22,1,.36,1);}
+
+/* School Info Card */
+.sch-info-card{border-radius:var(--radius);padding:18px;border:2px solid var(--border);background:#fff;margin-bottom:14px;}
+.sch-info-head{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.sch-badge{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.sch-badge.sma{background:linear-gradient(135deg,#f9a825,#e65100);}
+.sch-badge.smk1{background:linear-gradient(135deg,#1565c0,#0d47a1);}
+.sch-badge.smk2{background:linear-gradient(135deg,#1b5e20,#2e7d32);}
+.sch-info-name{font-family:'Poppins',sans-serif;font-size:14px;font-weight:700;color:var(--text);}
+.sch-info-addr{font-size:11px;color:var(--muted);margin-top:2px;}
+.sch-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.sch-fact{background:#f8f7ff;border-radius:10px;padding:9px 11px;border:1.5px solid var(--border);}
+.sch-fact-label{font-size:9.5px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:2px;}
+.sch-fact-val{font-size:12px;font-weight:700;color:var(--text);line-height:1.35;}
+
+/* Radar bars */
+.radar-wrap{margin-bottom:14px;}
+.radar-item{background:#f8f7ff;border-radius:10px;padding:10px 13px;border:1.5px solid var(--border);margin-bottom:7px;}
+.radar-label{display:flex;justify-content:space-between;font-size:11px;font-weight:700;color:var(--muted);margin-bottom:6px;}
+.radar-label span:last-child{color:var(--primary);font-weight:800;}
+.radar-bg{height:7px;background:var(--border);border-radius:4px;overflow:hidden;}
+.radar-fg{height:100%;border-radius:4px;transition:width 1.1s cubic-bezier(.22,1,.36,1);}
+.radar-fg.mapel{background:linear-gradient(90deg,#fdcb6e,#e17055);}
+.radar-fg.ribath{background:linear-gradient(90deg,#a29bfe,#6c63ff);}
+.radar-fg.bakat{background:linear-gradient(90deg,#fd79a8,#e84393);}
+.radar-fg.minat{background:linear-gradient(90deg,#55efc4,#00b894);}
+
+/* Reasons list */
+.reasons-card{background:#f0fff8;border:2px solid #00b894;border-radius:var(--radius);padding:16px 18px;margin-bottom:14px;}
+.reasons-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--green);margin-bottom:10px;}
+.reason-li{display:flex;gap:9px;font-size:12px;color:var(--text);margin-bottom:7px;line-height:1.5;}
+.reason-li::before{content:'✅';flex-shrink:0;margin-top:1px;}
+
+/* Rank list */
+.rank-list{margin-bottom:14px;}
+.rank-title{font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:9px;}
+.rank-item{display:grid;grid-template-columns:30px 1fr 90px 42px;gap:8px;align-items:center;
+  padding:8px 12px;border-radius:12px;border:1.5px solid var(--border);background:#fff;margin-bottom:6px;transition:transform .2s;}
+.rank-item:hover{transform:translateX(2px);}
+.rank-item.r1{border-color:#fdcb6e;background:#fffbf0;}
+.rank-item.r2{border-color:#b2bec3;background:#f8fafc;}
+.rank-item.r3{border-color:#e17055;background:#fff5f3;}
+.rank-num{font-size:15px;text-align:center;}
+.rank-school{font-size:11px;font-weight:700;color:var(--text);line-height:1.3;}
+.rank-jurusan{font-size:10px;color:var(--muted);}
+.rank-bar-wrap{display:flex;align-items:center;gap:5px;}
+.rank-bar-bg{flex:1;height:5px;background:var(--border);border-radius:3px;overflow:hidden;}
+.rank-bar-fg{height:100%;border-radius:3px;width:0%;transition:width 1s ease;}
+.rank-bar-fg.sma{background:linear-gradient(90deg,#fdcb6e,#e65100);}
+.rank-bar-fg.smk1{background:linear-gradient(90deg,#74b9ff,#0984e3);}
+.rank-bar-fg.smk2{background:linear-gradient(90deg,#55efc4,#00b894);}
+.rank-pct{font-size:11px;font-weight:800;color:var(--primary);text-align:right;}
+
+/* kesesuaian badge */
+.kb{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;margin-left:4px;}
+.kb.sangat{background:#d1fae5;color:#065f46;}
+.kb.cukup{background:#dbeafe;color:#1e40af;}
+.kb.pertimbang{background:#fef9c3;color:#854d0e;}
+.kb.kurang{background:#fee2e2;color:#991b1b;}
+
+/* Alt cards */
+.alt-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:14px;}
+.alt-card{border-radius:13px;padding:12px;border:1.5px solid var(--border);background:#fff;}
+.alt-num{font-size:9.5px;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);margin-bottom:3px;}
+.alt-name{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.alt-pct{font-size:11px;color:var(--muted);}
+
+/* Note box */
+.note-box{background:#f8f7ff;border:1.5px solid var(--border);border-radius:13px;
+  padding:12px 14px;font-size:11.5px;color:var(--muted);line-height:1.6;margin-bottom:16px;}
+.note-box strong{color:var(--primary);}
+
+/* ── FLOATING PARTICLES ── */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;}
+.particle{position:absolute;border-radius:50%;animation:float linear infinite;}
+@keyframes float{0%{transform:translateY(100vh) rotate(0deg);opacity:1;}100%{transform:translateY(-10vh) rotate(360deg);opacity:0;}}
+
+/* ── CONFETTI CANVAS ── */
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:100;}
+
+/* ── WELCOME SCREEN ── */
+.welcome-hero{text-align:center;padding:10px 0 6px;}
+.welcome-emoji{font-size:60px;display:block;margin-bottom:14px;animation:bounceIn .6s ease;}
+@keyframes bounceIn{0%{transform:scale(.4);opacity:0;}70%{transform:scale(1.1);}100%{transform:scale(1);opacity:1;}}
+.welcome-title{font-family:'Poppins',sans-serif;font-size:24px;font-weight:800;color:var(--text);margin-bottom:8px;line-height:1.25;}
+.welcome-title .hi{color:var(--primary);}
+.welcome-title .bye{color:var(--accent);}
+.welcome-desc{font-size:13.5px;color:var(--muted);line-height:1.65;margin-bottom:20px;}
+.welcome-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px;}
+.ws-item{background:#fff;border-radius:13px;padding:13px 8px;border:1.5px solid var(--border);text-align:center;}
+.ws-num{font-family:'Poppins',sans-serif;font-size:22px;font-weight:800;color:var(--primary);}
+.ws-label{font-size:10px;color:var(--muted);margin-top:2px;font-weight:600;}
+
+/* ── IDENTITY FORM ── */
+.identity-card{background:linear-gradient(135deg,#f5f3ff,#fff0f6);border:2px solid var(--border);border-radius:var(--radius);padding:20px;}
+
+/* ── RESPONSIVE ── */
+@media(max-width:480px){
+  .form-row{grid-template-columns:1fr;}
+  .score-badge-row{grid-template-columns:1fr 1fr;}
+  .sch-facts{grid-template-columns:1fr 1fr;}
+  .rank-item{grid-template-columns:24px 1fr 70px 36px;}
+  .alt-grid{grid-template-columns:1fr;}
+  .header-title{font-size:22px;}
+  .chip-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* ── STEP INDICATOR on result ── */
+.step-tag{display:inline-flex;align-items:center;gap:5px;padding:4px 12px;border-radius:50px;
+  background:linear-gradient(135deg,var(--primary),var(--accent));color:#fff;font-size:11px;font-weight:700;
+  margin-bottom:16px;}
+</style>
+</head>
+<body>
+
+<!-- decorative blobs -->
+<div class="blob blob-1"></div>
+<div class="blob blob-2"></div>
+<div class="blob blob-3"></div>
+<canvas id="confetti-canvas"></canvas>
+
+<div class="app">
+
+  <!-- ── HEADER ── -->
+  <div class="header">
+    <div class="logo-wrap">
+      <div class="logo-icon">🧭</div>
+      <div class="logo-text">
+        <div class="logo-name">SIPESEJUR</div>
+        <span class="logo-sub">Sistem Pemilihan Sekolah & Jurusan YPIC</span>
+      </div>
+    </div>
+    <div class="header-title">Temukan <span>Jalur Terbaikmu</span> 🚀</div>
+    <div class="header-desc">Aplikasi rekomendasi berbasis nilai akademik, profil Ribath at-Tauhid, bakat, dan minatmu. Bebas, akurat, dan menyenangkan!</div>
+  </div>
+
+  <!-- ── PROGRESS ── -->
+  <div class="progress-wrap" id="progressWrap">
+    <div class="progress-steps">
+      <div class="progress-step active" id="pst-1"><span class="step-num">👤</span>Data Diri</div>
+      <div class="progress-step" id="pst-2"><span class="step-num">📐</span>Nilai Mapel</div>
+      <div class="progress-step" id="pst-3"><span class="step-num">🏰</span>Ribath & Bakat</div>
+      <div class="progress-step" id="pst-4"><span class="step-num">🔥</span>Minat & Tujuan</div>
+      <div class="progress-step" id="pst-5"><span class="step-num">🏆</span>Hasil</div>
+    </div>
+    <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:10%"></div></div>
+  </div>
+
+  <!-- ════ PAGE 0 : WELCOME ════ -->
+  <div id="pg-0" class="page active">
+    <div class="card">
+      <div class="welcome-hero">
+        <span class="welcome-emoji">🎓</span>
+        <div class="welcome-title">Halo, Calon <span class="hi">Siswa</span> <span class="bye">Berprestasi!</span></div>
+        <div class="welcome-desc">SIPESEJUR akan membantumu menemukan sekolah dan jurusan yang paling sesuai dengan dirimu — berdasarkan <strong>13 parameter</strong> lengkap dari nilai akademik, karakter Ribath, bakat, dan minatmu.</div>
+      </div>
+      <div class="welcome-stats">
+        <div class="ws-item"><div class="ws-num">3</div><div class="ws-label">Pilihan Sekolah</div></div>
+        <div class="ws-item"><div class="ws-num">13</div><div class="ws-label">Jurusan Tersedia</div></div>
+        <div class="ws-item"><div class="ws-num">13</div><div class="ws-label">Parameter Analisis</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="goPage(1)">Mulai Sekarang! 🚀</button>
+    </div>
+    <div class="card" style="background:linear-gradient(135deg,#f5f3ff,#fff);border-color:var(--primary-light);">
+      <div class="card-title">🏫 Sekolah dalam Naungan YPIC</div>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:13px;border:1.5px solid #fdcb6e;">
+          <span style="font-size:22px;">📚</span>
+          <div><div style="font-size:13px;font-weight:700;color:var(--text);">SMA Cokroaminoto 1 Banjarnegara</div><div style="font-size:11px;color:var(--muted);">IPA & IPS · Tujuan: Perguruan Tinggi</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:13px;border:1.5px solid #74b9ff;">
+          <span style="font-size:22px;">💻</span>
+          <div><div style="font-size:13px;font-weight:700;color:var(--text);">SMK Cokroaminoto 1 Banjarnegara</div><div style="font-size:11px;color:var(--muted);">5 Jurusan · Industri Kreatif & Digital</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:#fff;border-radius:13px;border:1.5px solid #55efc4;">
+          <span style="font-size:22px;">⚙️</span>
+          <div><div style="font-size:13px;font-weight:700;color:var(--text);">SMK Cokroaminoto 2 Banjarnegara</div><div style="font-size:11px;color:var(--muted);">6 Jurusan · Teknik & Manufaktur</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 1 : DATA DIRI ════ -->
+  <div id="pg-1" class="page">
+    <div class="card identity-card">
+      <div class="card-title">👤 Identitas Siswa</div>
+      <div class="card-subtitle">Isi data diri kamu dulu ya — nama kamu akan muncul di halaman hasil rekomendasi! 😊</div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">📝 Nama Lengkap <span style="color:var(--accent)">*</span></label>
+          <input type="text" id="inp-nama" class="form-input" placeholder="Contoh: Ahmad Fauzi" maxlength="60">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">📅 Tahun Lulus SMP</label>
+          <input type="text" id="inp-tahun" class="form-input" placeholder="2024 / 2025" maxlength="10">
+        </div>
+        <div class="form-group">
+          <label class="form-label">📍 Asal Sekolah / MI</label>
+          <input type="text" id="inp-asal" class="form-input" placeholder="SMP Cokroaminoto" maxlength="50">
+        </div>
+      </div>
+      <div class="form-row single">
+        <div class="form-group">
+          <label class="form-label">🏠 Alamat Rumah</label>
+          <input type="text" id="inp-alamat" class="form-input" placeholder="Contoh: Jl. Pemuda No. 10, Banjarnegara" maxlength="80">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">📞 No. HP / WhatsApp</label>
+          <input type="tel" id="inp-hp" class="form-input" placeholder="0812xxxxxxxx" maxlength="15">
+        </div>
+        <div class="form-group">
+          <label class="form-label">⚧ Jenis Kelamin</label>
+          <select id="inp-jk" class="form-input">
+            <option value="">-- Pilih --</option>
+            <option value="Laki-laki">Laki-laki</option>
+            <option value="Perempuan">Perempuan</option>
+          </select>
+        </div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="nextPage1()">Lanjut — Isi Nilai Mapel 📐</button>
+  </div>
+
+  <!-- ════ PAGE 2 : NILAI MAPEL ════ -->
+  <div id="pg-2" class="page">
+    <div class="card">
+      <div class="card-title">📐 Nilai Mata Pelajaran TKA</div>
+      <div class="card-subtitle">Geser slider sesuai nilai rata-rata semester terakhirmu (60–100). Jujur ya — ini untuk kebaikanmu! 😄</div>
+
+      <div class="score-group">
+        <div class="section-label">🔬 Sains & Matematika</div>
+        <div class="score-badge-row">
+          <div class="score-item sains">
+            <label>📐 Matematika</label>
+            <div class="score-range-wrap"><input type="range" id="sc-mat" min="60" max="100" value="75" oninput="sv('mat',this.value)"><span class="score-val" id="sv-mat">75</span></div>
+          </div>
+          <div class="score-item sains">
+            <label>⚗️ IPA / Sains</label>
+            <div class="score-range-wrap"><input type="range" id="sc-ipa" min="60" max="100" value="75" oninput="sv('ipa',this.value)"><span class="score-val" id="sv-ipa">75</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-group">
+        <div class="section-label">📖 Bahasa</div>
+        <div class="score-badge-row">
+          <div class="score-item bahasa">
+            <label>🇮🇩 Bhs. Indonesia</label>
+            <div class="score-range-wrap"><input type="range" id="sc-bindo" min="60" max="100" value="75" oninput="sv('bindo',this.value)"><span class="score-val" id="sv-bindo">75</span></div>
+          </div>
+          <div class="score-item bahasa">
+            <label>🇬🇧 Bhs. Inggris</label>
+            <div class="score-range-wrap"><input type="range" id="sc-bing" min="60" max="100" value="75" oninput="sv('bing',this.value)"><span class="score-val" id="sv-bing">75</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="score-group">
+        <div class="section-label">🌏 Sosial, Teknologi & Seni</div>
+        <div class="score-badge-row three">
+          <div class="score-item lain">
+            <label>📊 IPS / Ekonomi</label>
+            <div class="score-range-wrap"><input type="range" id="sc-ips" min="60" max="100" value="75" oninput="sv('ips',this.value)"><span class="score-val" id="sv-ips">75</span></div>
+          </div>
+          <div class="score-item lain">
+            <label>🖥️ TIK / Informatika</label>
+            <div class="score-range-wrap"><input type="range" id="sc-tik" min="60" max="100" value="75" oninput="sv('tik',this.value)"><span class="score-val" id="sv-tik">75</span></div>
+          </div>
+          <div class="score-item lain">
+            <label>🎨 Seni & Prakarya</label>
+            <div class="score-range-wrap"><input type="range" id="sc-seni" min="60" max="100" value="75" oninput="sv('seni',this.value)"><span class="score-val" id="sv-seni">75</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goPage(1)">← Kembali</button>
+      <button class="btn btn-primary" onclick="goPage(3)">Lanjut — Ribath & Bakat 🏰</button>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 3 : RIBATH & BAKAT ════ -->
+  <div id="pg-3" class="page">
+    <div class="card">
+      <div class="card-title">🏰 Nilai Ribath at-Tauhid</div>
+      <div class="card-subtitle">Masukkan nilai akhirmu di 3 pilar program Ribath (skala 60–100).</div>
+      <div class="score-badge-row three">
+        <div class="score-item ps">
+          <label>🗣️ Public Speaking</label>
+          <div class="score-range-wrap"><input type="range" id="sc-ps" min="60" max="100" value="75" oninput="sv('ps',this.value)"><span class="score-val" id="sv-ps">75</span></div>
+        </div>
+        <div class="score-item ld">
+          <label>💻 Literasi Digital</label>
+          <div class="score-range-wrap"><input type="range" id="sc-ld" min="60" max="100" value="75" oninput="sv('ld',this.value)"><span class="score-val" id="sv-ld">75</span></div>
+        </div>
+        <div class="score-item ss">
+          <label>🤝 Adab & Karakter</label>
+          <div class="score-range-wrap"><input type="range" id="sc-ss" min="60" max="100" value="75" oninput="sv('ss',this.value)"><span class="score-val" id="sv-ss">75</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">✨ Identifikasi Bakat Dirimu</div>
+      <div class="card-subtitle">Pilih bakat yang kamu rasakan sebagai kekuatanmu (boleh lebih dari satu).</div>
+      <div class="chip-grid five">
+        <div class="chip" data-bakat="analitis" onclick="toggleChip(this)"><span class="chip-icon">🧠</span><span class="chip-name">Analitis & Logika</span></div>
+        <div class="chip" data-bakat="debat" onclick="toggleChip(this)"><span class="chip-icon">🗣️</span><span class="chip-name">Debat & Argumen</span></div>
+        <div class="chip" data-bakat="pimpin" onclick="toggleChip(this)"><span class="chip-icon">👑</span><span class="chip-name">Kepemimpinan</span></div>
+        <div class="chip" data-bakat="empati" onclick="toggleChip(this)"><span class="chip-icon">❤️</span><span class="chip-name">Empati & Mediasi</span></div>
+        <div class="chip" data-bakat="nulis" onclick="toggleChip(this)"><span class="chip-icon">✍️</span><span class="chip-name">Menulis & Jurnalistik</span></div>
+        <div class="chip" data-bakat="desain" onclick="toggleChip(this)"><span class="chip-icon">🎨</span><span class="chip-name">Desain Visual</span></div>
+        <div class="chip" data-bakat="konten" onclick="toggleChip(this)"><span class="chip-icon">📲</span><span class="chip-name">Konten Digital</span></div>
+        <div class="chip" data-bakat="bisnis" onclick="toggleChip(this)"><span class="chip-icon">💰</span><span class="chip-name">Bisnis & Negosiasi</span></div>
+        <div class="chip" data-bakat="rekayasa" onclick="toggleChip(this)"><span class="chip-icon">🔧</span><span class="chip-name">Rekayasa & Teknik</span></div>
+        <div class="chip" data-bakat="tinkering" onclick="toggleChip(this)"><span class="chip-icon">⚙️</span><span class="chip-name">Otomotif & Mesin</span></div>
+      </div>
+    </div>
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goPage(2)">← Kembali</button>
+      <button class="btn btn-primary" onclick="goPage(4)">Lanjut — Minat & Tujuan 🔥</button>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 4 : MINAT & TUJUAN ════ -->
+  <div id="pg-4" class="page">
+    <div class="card">
+      <div class="card-title">🔥 Bidang Minat Kamu</div>
+      <div class="card-subtitle">Pilih bidang yang paling kamu sukai (boleh lebih dari satu).</div>
+      <div class="chip-grid">
+        <div class="chip" data-minat="akademik" onclick="toggleChipMinat(this)"><span class="chip-icon">📚</span><span class="chip-name">Akademik & Teori</span></div>
+        <div class="chip" data-minat="digital" onclick="toggleChipMinat(this)"><span class="chip-icon">💻</span><span class="chip-name">Teknologi & Digital</span></div>
+        <div class="chip" data-minat="bisnis" onclick="toggleChipMinat(this)"><span class="chip-icon">💰</span><span class="chip-name">Bisnis & Keuangan</span></div>
+        <div class="chip" data-minat="teknik" onclick="toggleChipMinat(this)"><span class="chip-icon">🔧</span><span class="chip-name">Teknik & Industri</span></div>
+        <div class="chip" data-minat="sosial" onclick="toggleChipMinat(this)"><span class="chip-icon">🤝</span><span class="chip-name">Sosial & Humaniora</span></div>
+        <div class="chip" data-minat="seni" onclick="toggleChipMinat(this)"><span class="chip-icon">🎨</span><span class="chip-name">Seni & Kreativitas</span></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎯 Tujuan Setelah SMP</div>
+      <div class="card-subtitle">Apa rencana utamamu setelah lulus?</div>
+      <div class="pill-row">
+        <button id="tuj-kuliah" class="pill" onclick="setTujuan('kuliah',this,'active')">🎓 Kuliah / Kampus</button>
+        <button id="tuj-kerja" class="pill" onclick="setTujuan('kerja',this,'active-accent')">🏭 Langsung Kerja / Vokasi</button>
+        <button id="tuj-belum" class="pill active" onclick="setTujuan('belum',this,'active')">🤔 Belum Pasti</button>
+      </div>
+
+      <div class="card-title" style="margin-top:8px;">📖 Gaya Belajar Favoritmu</div>
+      <div class="card-subtitle">Mana yang paling cocok denganmu?</div>
+      <div class="gaya-row">
+        <button class="gaya-btn" id="gb-teori" onclick="setGaya('teori',this)">📖 Teori<span class="gaya-btn-sub">Buku & ceramah</span></button>
+        <button class="gaya-btn active" id="gb-campuran" onclick="setGaya('campuran',this)">⚖️ Campuran<span class="gaya-btn-sub">Teori + Praktik</span></button>
+        <button class="gaya-btn" id="gb-praktik" onclick="setGaya('praktik',this)">🛠️ Praktik<span class="gaya-btn-sub">Langsung berkarya</span></button>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <button class="btn btn-back" onclick="goPage(3)">← Kembali</button>
+      <button class="btn btn-primary" onclick="calcResult()">🧭 Lihat Rekomendasi Saya!</button>
+    </div>
+  </div>
+
+  <!-- ════ PAGE 5 : HASIL ════ -->
+  <div id="pg-5" class="page">
+    <div id="result-content"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" onclick="resetAll()" style="margin-top:0;">🔄 Mulai Ulang</button>
+      <button class="btn btn-primary" onclick="window.print()">🖨️ Cetak Hasil</button>
+    </div>
+  </div>
+
+</div><!-- end app -->
+
+<script>
+/* ══ STATE ══ */
+let curPage = 0;
+let recTujuan = 'belum';
+let recGaya   = 'campuran';
+
+/* ══ NAVIGATION ══ */
+function goPage(n) {
+  document.getElementById('pg-' + curPage).classList.remove('active');
+  curPage = n;
+  document.getElementById('pg-' + n).classList.add('active');
+  updateProgress(n);
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function updateProgress(n) {
+  const fills = [0, 15, 35, 55, 75, 100];
+  document.getElementById('progressFill').style.width = fills[n] + '%';
+  [1,2,3,4,5].forEach(i => {
+    const el = document.getElementById('pst-' + i);
+    if (!el) return;
+    el.className = 'progress-step';
+    if (i < n) el.classList.add('done');
+    else if (i === n) el.classList.add('active');
+  });
+}
+
+function nextPage1() {
+  const nama = document.getElementById('inp-nama').value.trim();
+  if (!nama) {
+    document.getElementById('inp-nama').focus();
+    document.getElementById('inp-nama').style.borderColor = 'var(--accent)';
+    setTimeout(() => document.getElementById('inp-nama').style.borderColor = '', 1500);
+    return;
+  }
+  goPage(2);
+}
+
+/* ══ SLIDER ══ */
+function sv(id, val) {
+  document.getElementById('sv-' + id).textContent = val;
+}
+
+/* ══ CHIPS ══ */
+function toggleChip(el) { el.classList.toggle('selected'); }
+function toggleChipMinat(el) { el.classList.toggle('selected'); }
+
+/* ══ TUJUAN & GAYA ══ */
+function setTujuan(val, btn, cls) {
+  recTujuan = val;
+  ['tuj-kuliah','tuj-kerja','tuj-belum'].forEach(id => {
+    const b = document.getElementById(id);
+    b.className = 'pill';
+  });
+  btn.className = 'pill ' + cls;
+}
+function setGaya(val, btn) {
+  recGaya = val;
+  document.querySelectorAll('.gaya-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+/* ══ NORMALIZE ══ */
+function norm(v) { return Math.max(0, Math.min(1, (v - 60) / 40)); }
+
+/* ══ JURUSAN DATABASE ══ */
+const JURUSAN = {
+  sma_ipa:     { name:'SMA Cokroaminoto 1', jurusan:'Program IPA', cls:'sma', emoji:'📐', info:{akreditasi:'B', alamat:'Jl. Pemuda No. 63, Banjarnegara', tujuan:'Perguruan Tinggi', kontak:'(0286) XXXXXX'}, detail:'Fokus sains: Fisika, Kimia, Biologi, Matematika. Ideal untuk yang ingin kuliah di kedokteran, teknik, MIPA, farmasi, dan sains murni.', subjectKeys:{mat:.40,ipa:.40,bing:.20}, charKeys:{r_ps:.35,r_ss:.65}, bakatKeys:['analitis','debat'], minatKeys:['akademik','teknik'], tujuanScore:{kuliah:1.00,belum:.50,kerja:.12}, gayaScore:{teori:1.00,campuran:.55,praktik:.12} },
+  sma_ips:     { name:'SMA Cokroaminoto 1', jurusan:'Program IPS', cls:'sma', emoji:'📖', info:{akreditasi:'B', alamat:'Jl. Pemuda No. 63, Banjarnegara', tujuan:'Perguruan Tinggi', kontak:'(0286) XXXXXX'}, detail:'Fokus humaniora dan sosial: Ekonomi, Geografi, Sosiologi, Sejarah. Ideal untuk kuliah di hukum, ekonomi, komunikasi, HI, dan ilmu sosial.', subjectKeys:{ips:.40,bindo:.35,bing:.25}, charKeys:{r_ps:.60,r_ss:.40}, bakatKeys:['debat','pimpin','empati','nulis'], minatKeys:['akademik','sosial'], tujuanScore:{kuliah:1.00,belum:.50,kerja:.12}, gayaScore:{teori:.90,campuran:.60,praktik:.20} },
+  smk1_animasi:{ name:'SMK Cokroaminoto 1', jurusan:'Kompetensi Animasi', cls:'smk1', emoji:'🎨', info:{akreditasi:'B', alamat:'Jl. Pemuda No. 63, Banjarnegara', tujuan:'Industri Kreatif', kontak:'(0286) XXXXXX'}, detail:'Mempelajari seni digital, animasi 2D/3D, ilustrasi, dan desain karakter. Peluang karir: animator, desainer, kreator konten.', subjectKeys:{seni:.55,tik:.45}, charKeys:{r_ld:.80,r_ps:.20}, bakatKeys:['desain','konten'], minatKeys:['seni','digital'], tujuanScore:{kerja:1.00,belum:.55,kuliah:.20}, gayaScore:{praktik:.80,campuran:1.00,teori:.20} },
+  smk1_tkj:    { name:'SMK Cokroaminoto 1', jurusan:'Teknik Komputer & Jaringan', cls:'smk1', emoji:'🖥️', info:{akreditasi:'B', alamat:'Jl. Pemuda No. 63, Banjarnegara', tujuan:'Industri IT', kontak:'(0286) XXXXXX'}, detail:'Menguasai jaringan komputer, sistem operasi server, hardware & software. Peluang karir: network engineer, IT support, sistem administrator.', subjectKeys:{tik:.65,mat:.35}, charKeys:{r_ld:.80,r_ss:.20}, bakatKeys:['analitis','rekayasa'], minatKeys:['digital'], tujuanScore:{kerja:1.00,belum:.55,kuliah:.18}, gayaScore:{praktik:.85,campuran:1.00,teori:.15} },
+  smk1_tbsm:   { name:'SMK Cokroaminoto 1', jurusan:'Teknik & Bisnis Sepeda Motor', cls:'smk1', emoji:'🏍️', info:{akreditasi:'B', alamat:'Jl. Pemuda No. 63, Banjarnegara', tujuan:'Industri Otomotif', kontak:'(0286) XXXXXX'}, detail:'Teknik perawatan sepeda motor + manajemen bisnis bengkel. Peluang karir: mekanik, kepala bengkel, wirausaha bengkel mandiri.', subjectKeys:{mat:.50,ipa:.50}, charKeys:{r_ss:.70,r_ps:.30}, bakatKeys:['tinkering','bisnis'], minatKeys:['teknik','bisnis'], tujuanScore:{kerja:1.00,belum:.55,kuliah:.12}, gayaScore:{praktik:1.00,campuran:.65,teori:.15} },
+  smk1_akuntansi:{ name:'SMK Cokroaminoto 1', jurusan:'Akuntansi & Keuangan Lembaga', cls:'smk1', emoji:'💰', info:{akreditasi:'B', alamat:'Jl. Pemuda No. 63, Banjarnegara', tujuan:'Industri Keuangan', kontak:'(0286) XXXXXX'}, detail:'Belajar pembukuan, laporan keuangan, perpajakan, dan software akuntansi. Peluang karir: akuntan, staf keuangan, administrasi kantor.', subjectKeys:{mat:.50,ips:.50}, charKeys:{r_ss:.60,r_ps:.40}, bakatKeys:['analitis','bisnis'], minatKeys:['bisnis'], tujuanScore:{kerja:1.00,belum:.55,kuliah:.25}, gayaScore:{teori:.70,campuran:1.00,praktik:.40} },
+  smk1_kantor: { name:'SMK Cokroaminoto 1', jurusan:'Otomatisasi & Tata Kelola Perkantoran', cls:'smk1', emoji:'🗂️', info:{akreditasi:'B', alamat:'Jl. Pemuda No. 63, Banjarnegara', tujuan:'Dunia Kerja Kantor', kontak:'(0286) XXXXXX'}, detail:'Manajemen perkantoran, kesekretariatan, korespondensi, otomasi kantor. Peluang karir: sekretaris, administrasi, staf tata usaha.', subjectKeys:{bindo:.50,bing:.50}, charKeys:{r_ps:.50,r_ss:.50}, bakatKeys:['pimpin','bisnis','empati','nulis'], minatKeys:['bisnis','sosial'], tujuanScore:{kerja:1.00,belum:.55,kuliah:.20}, gayaScore:{campuran:1.00,teori:.60,praktik:.50} },
+  smk2_listrik:{ name:'SMK Cokroaminoto 2', jurusan:'Teknik Instalasi Tenaga Listrik', cls:'smk2', emoji:'⚡', info:{akreditasi:'-', alamat:'Jl. Letjend Soeprapto No. 221, Banjarnegara', tujuan:'Industri Listrik', kontak:'-'}, detail:'Instalasi listrik rumah, gedung, dan industri. Peluang karir: teknisi listrik, kontraktor instalasi, petugas PLN.', subjectKeys:{ipa:.55,mat:.45}, charKeys:{r_ss:.70,r_ld:.30}, bakatKeys:['rekayasa','analitis'], minatKeys:['teknik'], tujuanScore:{kerja:1.00,belum:.50,kuliah:.08}, gayaScore:{praktik:1.00,campuran:.45,teori:.08} },
+  smk2_mesin:  { name:'SMK Cokroaminoto 2', jurusan:'Teknik Pemesinan', cls:'smk2', emoji:'⚙️', info:{akreditasi:'-', alamat:'Jl. Letjend Soeprapto No. 221, Banjarnegara', tujuan:'Industri Manufaktur', kontak:'-'}, detail:'Pengoperasian mesin bubut, frais, CNC. Peluang karir: operator mesin, teknisi manufaktur, industri otomotif.', subjectKeys:{mat:.50,ipa:.50}, charKeys:{r_ss:.80,r_ld:.20}, bakatKeys:['rekayasa','tinkering'], minatKeys:['teknik'], tujuanScore:{kerja:1.00,belum:.50,kuliah:.08}, gayaScore:{praktik:1.00,campuran:.40,teori:.05} },
+  smk2_las:    { name:'SMK Cokroaminoto 2', jurusan:'Teknik Pengelasan', cls:'smk2', emoji:'🔥', info:{akreditasi:'-', alamat:'Jl. Letjend Soeprapto No. 221, Banjarnegara', tujuan:'Industri Konstruksi', kontak:'-'}, detail:'Teknik las SMAW, MIG, TIG untuk konstruksi dan fabrikasi. Peluang karir: juru las, teknisi fabrikasi, industri konstruksi & perkapalan.', subjectKeys:{ipa:.50,mat:.50}, charKeys:{r_ss:.85,r_ld:.15}, bakatKeys:['rekayasa','tinkering'], minatKeys:['teknik'], tujuanScore:{kerja:1.00,belum:.50,kuliah:.08}, gayaScore:{praktik:1.00,campuran:.38,teori:.05} },
+  smk2_otomotif:{ name:'SMK Cokroaminoto 2', jurusan:'Teknik Kendaraan Ringan', cls:'smk2', emoji:'🚗', info:{akreditasi:'-', alamat:'Jl. Letjend Soeprapto No. 221, Banjarnegara', tujuan:'Industri Otomotif', kontak:'-'}, detail:'Merawat dan memperbaiki kendaraan ringan (mobil). Peluang karir: mekanik, kepala bengkel, teknisi dealer otomotif.', subjectKeys:{ipa:.55,mat:.45}, charKeys:{r_ss:.70,r_ld:.30}, bakatKeys:['tinkering','rekayasa','bisnis'], minatKeys:['teknik','bisnis'], tujuanScore:{kerja:1.00,belum:.50,kuliah:.10}, gayaScore:{praktik:1.00,campuran:.50,teori:.08} },
+  smk2_audio:  { name:'SMK Cokroaminoto 2', jurusan:'Teknik Audio Video', cls:'smk2', emoji:'📻', info:{akreditasi:'-', alamat:'Jl. Letjend Soeprapto No. 221, Banjarnegara', tujuan:'Industri Elektronika', kontak:'-'}, detail:'Perakitan, perawatan, dan reparasi perangkat audio-video elektronik. Peluang karir: teknisi elektronik, studio audio, industri broadcasting.', subjectKeys:{ipa:.40,tik:.35,seni:.25}, charKeys:{r_ld:.50,r_ss:.50}, bakatKeys:['rekayasa','desain','analitis'], minatKeys:['teknik','digital','seni'], tujuanScore:{kerja:1.00,belum:.55,kuliah:.15}, gayaScore:{praktik:.90,campuran:1.00,teori:.18} },
+  smk2_multimedia:{ name:'SMK Cokroaminoto 2', jurusan:'Multimedia', cls:'smk2', emoji:'🎬', info:{akreditasi:'-', alamat:'Jl. Letjend Soeprapto No. 221, Banjarnegara', tujuan:'Industri Kreatif', kontak:'-'}, detail:'Desain grafis, videografi, editing, animasi, dan web. Peluang karir: desainer grafis, video editor, content creator, web designer.', subjectKeys:{seni:.50,tik:.50}, charKeys:{r_ld:.65,r_ss:.35}, bakatKeys:['desain','konten','rekayasa'], minatKeys:['seni','digital','teknik'], tujuanScore:{kerja:1.00,belum:.55,kuliah:.18}, gayaScore:{praktik:.80,campuran:1.00,teori:.20} }
+};
+
+const W = { subject:.30, character:.18, bakat:.28, minat:.18, tujuan:.04, gaya:.02 };
+
+function computeScore(key, inp) {
+  const j = JURUSAN[key];
+  let subj=0; for(const[k,w] of Object.entries(j.subjectKeys)) subj+=w*norm(inp[k]||75);
+  let ch=0;   for(const[k,w] of Object.entries(j.charKeys))   ch+=w*norm(inp[k]||75);
+  const bk = inp.bakat||[];
+  const bakatScore = j.bakatKeys.length>0 ? j.bakatKeys.filter(b=>bk.includes(b)).length/j.bakatKeys.length : 0;
+  const mn = inp.minat||[];
+  const minatScore = j.minatKeys.length>0 ? j.minatKeys.filter(m=>mn.includes(m)).length/j.minatKeys.length : 0;
+  const tujScore  = j.tujuanScore[inp.tujuan||'belum']??0.35;
+  const gayaScore = j.gayaScore[inp.gaya||'campuran']??0.50;
+  return Math.round((W.subject*subj+W.character*ch+W.bakat*bakatScore+W.minat*minatScore+W.tujuan*tujScore+W.gaya*gayaScore)*100);
+}
+
+function kbLabel(pct) {
+  if(pct>=70) return '<span class="kb sangat">✨ Sangat Sesuai</span>';
+  if(pct>=50) return '<span class="kb cukup">👍 Cukup Sesuai</span>';
+  if(pct>=35) return '<span class="kb pertimbang">🤔 Perlu Pertimbangan</span>';
+  return '<span class="kb kurang">⚠️ Kurang Sesuai</span>';
+}
+
+/* ══ CALC & RENDER RESULT ══ */
+function calcResult() {
+  const nama    = document.getElementById('inp-nama').value.trim() || 'Siswa';
+  const tahun   = document.getElementById('inp-tahun').value.trim();
+  const asal    = document.getElementById('inp-asal').value.trim();
+  const alamat  = document.getElementById('inp-alamat').value.trim();
+  const hp      = document.getElementById('inp-hp').value.trim();
+  const jk      = document.getElementById('inp-jk').value;
+
+  const inp = {
+    mat:   +document.getElementById('sc-mat').value,
+    ipa:   +document.getElementById('sc-ipa').value,
+    bindo: +document.getElementById('sc-bindo').value,
+    bing:  +document.getElementById('sc-bing').value,
+    ips:   +document.getElementById('sc-ips').value,
+    tik:   +document.getElementById('sc-tik').value,
+    seni:  +document.getElementById('sc-seni').value,
+    r_ps:  +document.getElementById('sc-ps').value,
+    r_ld:  +document.getElementById('sc-ld').value,
+    r_ss:  +document.getElementById('sc-ss').value,
+    bakat: [...document.querySelectorAll('[data-bakat].selected')].map(c=>c.dataset.bakat),
+    minat: [...document.querySelectorAll('[data-minat].selected')].map(c=>c.dataset.minat),
+    tujuan: recTujuan,
+    gaya:   recGaya
+  };
+
+  const results = Object.keys(JURUSAN).map(k=>({key:k, score:computeScore(k,inp), ...JURUSAN[k]})).sort((a,b)=>b.score-a.score);
+  const top = results[0];
+  const j   = JURUSAN[top.key];
+
+  // Radar scores
+  const rSubj  = Math.round(Object.entries(j.subjectKeys).reduce((s,[k,w])=>s+w*norm(inp[k]||75),0)*100);
+  const rChar  = Math.round(Object.entries(j.charKeys).reduce((s,[k,w])=>s+w*norm(inp[k]||75),0)*100);
+  const rBakat = j.bakatKeys.length>0 ? Math.round(j.bakatKeys.filter(b=>inp.bakat.includes(b)).length/j.bakatKeys.length*100) : 0;
+  const rMinat = j.minatKeys.length>0 ? Math.round(j.minatKeys.filter(m=>inp.minat.includes(m)).length/j.minatKeys.length*100) : 0;
+
+  // Dynamic reasons
+  const reasons=[];
+  const subjectMap={mat:'Matematika',ipa:'IPA/Sains',bindo:'Bahasa Indonesia',bing:'Bahasa Inggris',ips:'IPS/Ekonomi',tik:'TIK/Informatika',seni:'Seni & Prakarya'};
+  const topSubjEntry=Object.entries(j.subjectKeys).sort((a,b)=>b[1]-a[1])[0];
+  const topSubjVal=inp[topSubjEntry[0]];
+  reasons.push(topSubjVal>=80 ? `Nilai ${subjectMap[topSubjEntry[0]]} kamu yang tinggi (${topSubjVal}) menjadi modal utama untuk ${top.jurusan}` : `Komposisi nilai mapelmu paling cocok dengan kebutuhan ${top.jurusan}`);
+  const ribathMap={r_ps:'Public Speaking',r_ld:'Literasi Digital',r_ss:'Adab & Karakter'};
+  const topRibathEntry=Object.entries(j.charKeys).sort((a,b)=>b[1]-a[1])[0];
+  reasons.push(`Nilai Ribath ${ribathMap[topRibathEntry[0]]} (${inp[topRibathEntry[0]]}) mendukung profil karakter yang dibutuhkan`);
+  const bakatNameMap={analitis:'Analitis & Logika',debat:'Debat & Argumen',pimpin:'Kepemimpinan',empati:'Empati & Mediasi',nulis:'Menulis & Jurnalistik',desain:'Desain Visual',konten:'Konten Digital',bisnis:'Bisnis & Negosiasi',rekayasa:'Rekayasa & Teknik',tinkering:'Otomotif & Mesin'};
+  const bakatMatch=j.bakatKeys.filter(b=>inp.bakat.includes(b));
+  if(bakatMatch.length>0) reasons.push(`Bakat kamu di bidang ${bakatMatch.map(b=>bakatNameMap[b]).join(', ')} sangat relevan`);
+  const minatNameMap={akademik:'Akademik & Teori',digital:'Teknologi & Digital',bisnis:'Bisnis & Keuangan',teknik:'Teknik & Industri',sosial:'Sosial & Humaniora',seni:'Seni & Kreativitas'};
+  const minatMatch=j.minatKeys.filter(m=>inp.minat.includes(m));
+  if(minatMatch.length>0) reasons.push(`Minat kamu di bidang ${minatMatch.map(m=>minatNameMap[m]).join(' & ')} selaras dengan kurikulum ini`);
+  if(j.tujuanScore[inp.tujuan||'belum']>=0.8) reasons.push(`Tujuanmu setelah SMP selaras dengan jalur yang disediakan ${top.name}`);
+  if(j.gayaScore[inp.gaya||'campuran']>=0.8){const gt={teori:'teori',campuran:'teori+praktik',praktik:'praktik langsung'};reasons.push(`Gaya belajar ${gt[recGaya]||recGaya} sangat cocok dengan metode di ${top.jurusan}`);}
+
+  // Alts
+  const seen=new Set([top.key]);const alts=[];
+  for(const r of results.slice(1)){if(!seen.has(r.key)){alts.push(r);seen.add(r.key);}if(alts.length>=3)break;}
+
+  // Sapaan
+  const panggilan = jk==='Perempuan' ? 'Kak' : jk==='Laki-laki' ? 'Kak' : 'Kamu';
+  const greetEmoji = top.cls==='sma' ? '🎓' : top.cls==='smk1' ? '💡' : '🔧';
+
+  const html = `
+    <div class="confetti-banner ${top.cls}">
+      <span class="cb-emoji">${greetEmoji}</span>
+      <div class="cb-congrats">🎉 Selamat! Rekomendasi untuk</div>
+      <div class="cb-name">${nama}${tahun ? ' · Angkatan ' + tahun : ''}</div>
+      <div class="cb-school">${top.emoji} <strong>${top.jurusan}</strong><br>${top.name} · YPIC Banjarnegara</div>
+      <div class="cb-match">
+        <div class="cb-pct" id="topPct">0%</div>
+        <div class="cb-label">Kesesuaian<br>Profil Kamu</div>
+      </div>
+      <div class="match-bar-wrap"><div class="match-bar"><div class="match-bar-fill" id="topFill"></div></div></div>
+    </div>
+
+    ${alamat||asal||hp ? `
+    <div class="card" style="padding:14px 18px;">
+      <div style="font-size:10.5px;font-weight:800;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:9px;">📋 Data Siswa</div>
+      <div style="display:flex;flex-direction:column;gap:5px;">
+        ${asal ? `<div style="font-size:12px;color:var(--text);">🏫 <strong>Asal:</strong> ${asal}</div>` : ''}
+        ${alamat ? `<div style="font-size:12px;color:var(--text);">🏠 <strong>Alamat:</strong> ${alamat}</div>` : ''}
+        ${hp ? `<div style="font-size:12px;color:var(--text);">📞 <strong>HP:</strong> ${hp}</div>` : ''}
+      </div>
+    </div>` : ''}
+
+    <div class="sch-info-card">
+      <div class="sch-info-head">
+        <div class="sch-badge ${top.cls}">${top.emoji}</div>
+        <div>
+          <div class="sch-info-name">${top.name}</div>
+          <div class="sch-info-addr">📍 ${j.info.alamat}</div>
+        </div>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:12px;line-height:1.55;">${j.detail}</div>
+      <div class="sch-facts">
+        <div class="sch-fact"><div class="sch-fact-label">📜 Jurusan / Program</div><div class="sch-fact-val">${top.jurusan}</div></div>
+        <div class="sch-fact"><div class="sch-fact-label">🎯 Tujuan Karir</div><div class="sch-fact-val">${j.info.tujuan}</div></div>
+        <div class="sch-fact"><div class="sch-fact-label">⭐ Akreditasi</div><div class="sch-fact-val">${j.info.akreditasi}</div></div>
+        <div class="sch-fact"><div class="sch-fact-label">🏆 Kesesuaian</div><div class="sch-fact-val">${top.score}% ${kbLabel(top.score)}</div></div>
+      </div>
+    </div>
+
+    <div class="radar-wrap">
+      <div class="section-label">📊 Analisis Kesesuaian Profil Kamu</div>
+      <div class="radar-item"><div class="radar-label"><span>📐 Kesesuaian Nilai Mapel</span><span>${rSubj}%</span></div><div class="radar-bg"><div class="radar-fg mapel" id="rf-mapel"></div></div></div>
+      <div class="radar-item"><div class="radar-label"><span>🏰 Kesesuaian Ribath at-Tauhid</span><span>${rChar}%</span></div><div class="radar-bg"><div class="radar-fg ribath" id="rf-ribath"></div></div></div>
+      <div class="radar-item"><div class="radar-label"><span>✨ Kesesuaian Bakat</span><span>${rBakat}%</span></div><div class="radar-bg"><div class="radar-fg bakat" id="rf-bakat"></div></div></div>
+      <div class="radar-item"><div class="radar-label"><span>🔥 Kesesuaian Minat</span><span>${rMinat}%</span></div><div class="radar-bg"><div class="radar-fg minat" id="rf-minat"></div></div></div>
+    </div>
+
+    <div class="reasons-card">
+      <div class="reasons-title">✅ Mengapa Ini Cocok untuk ${nama}?</div>
+      ${reasons.map(r=>`<div class="reason-li">${r}</div>`).join('')}
+    </div>
+
+    <div class="rank-list">
+      <div class="rank-title">📊 Peringkat Semua ${results.length} Program (Profil Kamu)</div>
+      ${results.map((r,i)=>{
+        const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}.`;
+        const rcls  = i===0?'r1':i===1?'r2':i===2?'r3':'';
+        return `<div class="rank-item ${rcls}">
+          <div class="rank-num">${medal}</div>
+          <div><div class="rank-school">${r.emoji} ${r.name}</div><div class="rank-jurusan">${r.jurusan} ${kbLabel(r.score)}</div></div>
+          <div class="rank-bar-wrap"><div class="rank-bar-bg"><div class="rank-bar-fg ${r.cls}" id="rb-${i}"></div></div></div>
+          <div class="rank-pct">${r.score}%</div>
+        </div>`;
+      }).join('')}
+    </div>
+
+    ${alts.length>0?`
+    <div class="card" style="padding:16px 18px;">
+      <div class="section-label">🔄 Alternatif yang Bisa Dipertimbangkan</div>
+      <div class="alt-grid">
+        ${alts.map(a=>`<div class="alt-card"><div class="alt-num">${a.emoji} ${a.name}</div><div class="alt-name">${a.jurusan}</div><div class="alt-pct">${a.score}% ${kbLabel(a.score)}</div></div>`).join('')}
+      </div>
+    </div>`:''}
+
+    <div class="note-box">💡 <strong>Catatan Penting:</strong> Hasil ini dihitung dari 13 parameter (7 mapel, 3 pilar Ribath, bakat, minat, tujuan & gaya belajar). Untuk keputusan final, tetap konsultasikan dengan wali kelas dan koordinator Ribath at-Tauhid yang mengenal perkembanganmu selama 3 tahun belajar di SMP Cokroaminoto.
+    </div>
+    <div style="text-align:center;padding:16px 0 8px;font-size:13px;color:var(--muted);">
+      🏫 <strong style="color:var(--primary)">SIPESEJUR</strong> · YPIC Banjarnegara · Sarekat Islam<br>
+      <span style="font-size:11px;">Sistem Pemilihan Sekolah & Jurusan · ${new Date().getFullYear()}</span>
+    </div>
+  `;
+
+  document.getElementById('result-content').innerHTML = html;
+  goPage(5);
+
+  // Animate
+  setTimeout(()=>{
+    // Counter animation for percentage
+    let start = 0; const end = top.score; const dur = 1200;
+    const el = document.getElementById('topPct');
+    const step = Math.ceil(end / (dur/16));
+    const timer = setInterval(()=>{
+      start = Math.min(start+step, end);
+      if(el) el.textContent = start + '%';
+      if(start>=end) clearInterval(timer);
+    },16);
+
+    const fill = document.getElementById('topFill');
+    if(fill) fill.style.width = top.score + '%';
+    const radarMap={mapel:rSubj,ribath:rChar,bakat:rBakat,minat:rMinat};
+    Object.entries(radarMap).forEach(([k,v])=>{
+      const el2=document.getElementById('rf-'+k);
+      if(el2) el2.style.width=v+'%';
+    });
+    results.forEach((_,i)=>{
+      const bar=document.getElementById('rb-'+i);
+      if(bar) bar.style.width=results[i].score+'%';
+    });
+    launchConfetti();
+  },100);
+}
+
+/* ══ CONFETTI ══ */
+function launchConfetti(){
+  const canvas=document.getElementById('confetti-canvas');
+  const ctx=canvas.getContext('2d');
+  canvas.width=window.innerWidth; canvas.height=window.innerHeight;
+  const colors=['#6c63ff','#fd79a8','#fdcb6e','#00cec9','#55efc4','#a29bfe'];
+  const pieces=[];
+  for(let i=0;i<120;i++){
+    pieces.push({
+      x:Math.random()*canvas.width, y:-20,
+      r:Math.random()*5+3, color:colors[Math.floor(Math.random()*colors.length)],
+      vx:(Math.random()-.5)*4, vy:Math.random()*4+2,
+      rotation:Math.random()*360, rotSpeed:(Math.random()-.5)*8,
+      shape:Math.random()>.5?'circle':'rect'
+    });
+  }
+  let frame=0;
+  function draw(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rotation*Math.PI/180);
+      ctx.fillStyle=p.color; ctx.globalAlpha=Math.max(0,1-frame/90);
+      if(p.shape==='circle'){ctx.beginPath();ctx.arc(0,0,p.r,0,Math.PI*2);ctx.fill();}
+      else{ctx.fillRect(-p.r,-p.r/2,p.r*2,p.r);}
+      ctx.restore();
+      p.x+=p.vx; p.y+=p.vy; p.rotation+=p.rotSpeed;
+    });
+    frame++;
+    if(frame<100) requestAnimationFrame(draw);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  }
+  draw();
+}
+
+/* ══ RESET ══ */
+function resetAll(){
+  // reset sliders
+  ['mat','ipa','bindo','bing','ips','tik','seni','ps','ld','ss'].forEach(id=>{
+    const el=document.getElementById('sc-'+id); const sv=document.getElementById('sv-'+id);
+    if(el){el.value=75;if(sv)sv.textContent='75';}
+  });
+  // reset form
+  ['inp-nama','inp-tahun','inp-asal','inp-alamat','inp-hp'].forEach(id=>{
+    const el=document.getElementById(id);if(el)el.value='';
+  });
+  document.getElementById('inp-jk').value='';
+  // reset chips
+  document.querySelectorAll('[data-bakat].selected,[data-minat].selected').forEach(c=>c.classList.remove('selected'));
+  // reset pills
+  ['tuj-kuliah','tuj-kerja','tuj-belum'].forEach(id=>{const b=document.getElementById(id);if(b)b.className='pill';});
+  document.getElementById('tuj-belum').classList.add('active');
+  document.querySelectorAll('.gaya-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('gb-campuran').classList.add('active');
+  recTujuan='belum'; recGaya='campuran';
+  document.getElementById('result-content').innerHTML='';
+  goPage(0);
+}
+</script>
+</body>
+</html>
